@@ -19,6 +19,43 @@ let departments = [];
 let roles = [];
 let employees = [];
 
+// Function to populate Inquier subquestions
+function populateChoices() {
+    let sql = "";
+    // populate the choice arrays
+    sql = "SELECT id, name FROM department";
+    db.query(
+        sql,
+        (err, rows) => {
+            if (err) throw err;
+            departments = rows.map((x) => {
+                departments.push(x.name);
+            })
+        }
+    )
+    sql = "SELECT r.id, title, salary, name FROM role r join department d on d.id = r.department_id";
+    db.query(
+        sql,
+        (err, rows) => {
+            if (err) throw err;
+            roles = rows.map((x) => {
+                roles.push(x.title);
+            })
+        }
+    )
+
+    sql = "SELECT e.id, e.first_name, e.last_name, title, m.first_name as 'manager_first_name', m.last_name as 'manager_last_name' FROM employee e left join role r on r.id = e.role_id left join employee m on m.id = e.manager_id";
+    db.query(
+        sql,
+        (err, rows) => {
+            if (err) throw err;
+            employees = rows.map((x) => {
+                employees.push(x.id + " " + x.first_name + " " + x.last_name);
+            })
+        }
+    )
+}
+
 const questions = [
     //THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
     {
@@ -108,7 +145,6 @@ const questions = [
         }
     },
     {
-
         // choice
         type: 'list',
         message: 'Enter employee manager:',
@@ -145,16 +181,9 @@ const questions = [
                 return true;
             }
         }
+
     },
 ]
-
-// Function to populate Inquier subquestions
-function populateUserChoices() {
-    // populate these arrays!!
-    departments.push('IT', 'Properties', 'Strategy', 'Operations');
-    roles.push('Developer', 'Engineer', 'Coder', 'Tester');
-    employees.push('1 Melissa Brown', '2 Adam Barret', '3 Chad Daniels', '4 Erin Frank');
-}
 
 // Create an array of questions for user input
 //async 
@@ -165,9 +194,9 @@ async function init() {
                 process.exit();
             }
             else {
-                var sql = "";
+                let sql = "";
                 if (data.view === "View all departments") {
-                    sql = "SELECT id, name FROM department";
+                    sql = "SELECT id, name FROM department order by name";
                     db.query(
                         sql,
                         (err, rows) => {
@@ -177,7 +206,7 @@ async function init() {
                     )
                 }
                 else if (data.view === "View all roles") {
-                    sql = "SELECT r.id, title, salary, name FROM role r join department d on d.id = r.department_id";
+                    sql = "SELECT r.id, title, salary, name FROM role r join department d on d.id = r.department_id order by title";
                     db.query(
                         sql,
                         (err, rows) => {
@@ -187,7 +216,7 @@ async function init() {
                     )
                 }
                 else if (data.view === "View all employees") {
-                    sql = "SELECT e.id, e.first_name, e.last_name, title, m.first_name as 'manager_first_name', m.last_name as 'manager_last_name' FROM employee e left join role r on r.id = e.role_id left join employee m on m.id = e.manager_id";
+                    sql = "SELECT e.id, e.first_name, e.last_name, title, m.first_name as 'manager_first_name', m.last_name as 'manager_last_name' FROM employee e left join role r on r.id = e.role_id left join employee m on m.id = e.manager_id order by e.first_name, e.last_name, e.id";
                     db.query(
                         sql,
                         (err, rows) => {
@@ -196,12 +225,13 @@ async function init() {
                         }
                     )
                 }
-                else if (data.view === "Add a department") {
+                else if (data.view === "Add a department") {      
                     sql = "INSERT INTO department (name) VALUES (\"" + data.department + "\")";
                     db.query(
                         sql,
                         (err, rows) => {
                             if (err) throw err;
+                            departments.push(data.department);
                             console.log("\n\n", "Department", data.department, "added", "\n\n\n");
                         }
                     )
@@ -212,9 +242,9 @@ async function init() {
                     db.query(
                         sqlDeptID,
                         (err, rows) => {
-                            if (err) throw err;
+                            if (err) throw err;                       
                             dID = rows[0].id;
-
+                            roles.push(data.role);
                             sql = "INSERT INTO role (title, salary, department_id) VALUES (\"" + data.role + "\", \"" + data.salary + "\", " + dID + "\)";
                             db.query(
                                 sql,
@@ -240,7 +270,7 @@ async function init() {
                             if (err) throw err;
                             rID = rows[0].rID;
                             mID = rows[0].mID;
-
+                            employees.push(rID + " " + data.firstName + " " + data.lastName);
                             sql = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (\"" + data.firstName + "\", \"" + data.lastName + "\", " + rID + ", " + mID + ")";
 
                             db.query(
@@ -250,6 +280,17 @@ async function init() {
                                     console.log("\n\n", "Employee", data.firstName, data.lastName, "added", "\n\n\n");
                                 }
                             )
+                        }
+                    )
+
+                    sql = "SELECT e.id, e.first_name, e.last_name, title, m.first_name as 'manager_first_name', m.last_name as 'manager_last_name' FROM employee e left join role r on r.id = e.role_id left join employee m on m.id = e.manager_id";
+                    db.query(
+                        sql,
+                        (err, rows) => {
+                            if (err) throw err;
+                            employees = rows.map((x) => {
+                                employees.push(x.id + " " + x.first_name + " " + x.last_name);
+                            })
                         }
                     )
                 }
@@ -288,5 +329,5 @@ async function init() {
         )
 };
 
-populateUserChoices();
+populateChoices();
 init();
