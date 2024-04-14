@@ -18,7 +18,7 @@
   
   ## Questions
 
-  Demo video: [[(https://drive.google.com/drive/folders/12SrtnVQ4cRIruF8el7X6XMc33rHFUg91?q=parent:12SrtnVQ4cRIruF8el7X6XMc33rHFUg91)](https://github.com/mbrown50/my-Employee-Tracker-App)](https://drive.google.com/file/d/1hIgwCoxUtf4XVm3kczoY2Tf4CvCWSADE/view)
+  Demo video: https://drive.google.com/file/d/1hIgwCoxUtf4XVm3kczoY2Tf4CvCWSADE/view
   
   GitHub username: mbrown50
 
