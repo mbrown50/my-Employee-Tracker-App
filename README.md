@@ -10,6 +10,8 @@
 
   [Description](#description) | [License](#license) | [Questions](#questions)
   
+  ![Image of deployed site 1](./images/Tracker.jpg "Deployed site")
+
   ## License
   
   License: MIT
